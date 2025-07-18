@@ -2,6 +2,7 @@ import random
 import math
 import matplotlib.pyplot as plt
 from typing import List, Dict, Tuple, Optional
+import argparse
 
 def set_random_seed(seed: Optional[int] = None):
     """Set the random seed for reproducibility."""
@@ -80,7 +81,7 @@ def print_simulation_results(nodes: List[Dict], cluster_heads: List[Dict], pegas
     for ch_id, chain in pegasis_chains.items():
         print(f"CH {ch_id}: {chain}")
 
-def plot_network(nodes: List[Dict], cluster_heads: List[Dict], pegasis_chains: Dict[int, List[int]], field_size: Tuple[int, int], bs_location: Tuple[int, int]):
+def plot_network(nodes: List[Dict], cluster_heads: List[Dict], pegasis_chains: Dict[int, List[int]], field_size: Tuple[int, int], bs_location: Tuple[int, int], save_plot: str):
     plt.figure(figsize=(10, 10))
     plt.title("Hybrid-LEAP Node Deployment with CHs and PEGASIS Chains")
     plt.xlabel("X Position")
@@ -117,14 +118,16 @@ def plot_network(nodes: List[Dict], cluster_heads: List[Dict], pegasis_chains: D
     plt.xlim(0, field_size[0] + 10)
     plt.ylim(0, field_size[1] + 10)
     plt.grid(True)
-    plt.show()
+    #plt.show()
+    plt.savefig(save_plot)
 
 def run_simulation(
     num_nodes: int = 20,
     field_size: Tuple[int, int] = (100, 100),
     ch_probability: float = 0.2,
     bs_location: Tuple[int, int] = (100, 100),
-    seed: Optional[int] = None
+    seed: Optional[int] = None,
+    save_plot: str = 'plot.png'
 ):
     """Run the Hybrid-LEAP simulation with PEGASIS chains."""
     set_random_seed(seed)
@@ -133,14 +136,27 @@ def run_simulation(
     assign_nodes_to_ch(nodes, cluster_heads)
     pegasis_chains = build_pegasis_chains(nodes, cluster_heads)
     print_simulation_results(nodes, cluster_heads, pegasis_chains)
-    plot_network(nodes, cluster_heads, pegasis_chains, field_size, bs_location)
+    plot_network(nodes, cluster_heads, pegasis_chains, field_size, bs_location, save_plot)
 
 if __name__ == "__main__":
-    # You can change parameters here
+    parser = argparse.ArgumentParser(description="Run Hybrid-LEAP simulation with command-line parameters.")
+    parser.add_argument('--num_nodes', type=int, default=20, help="Number of nodes")
+    parser.add_argument('--field_size', type=int, nargs=2, default=[100, 100], help="Field size (width height)")
+    parser.add_argument('--ch_probability', type=float, default=0.2, help="Cluster head probability")
+    parser.add_argument('--bs_location', type=int, nargs=2, default=[100, 100], help="Base station location (x y)")
+    parser.add_argument('--seed', type=int, default=None, help="Random seed (optional)")
+    parser.add_argument('--save_plot', type=str, default='plot.png', help="Filename to save the plot")
+    args = parser.parse_args()
+
+    # Convert lists to tuples
+    field_size_tuple = tuple(args.field_size)
+    bs_location_tuple = tuple(args.bs_location)
+
     run_simulation(
-        num_nodes=20,
-        field_size=(100, 100),
-        ch_probability=0.2,
-        bs_location=(100, 100),
-        seed=None  # Set to None for random results
+        num_nodes=args.num_nodes,
+        field_size=field_size_tuple,
+        ch_probability=args.ch_probability,
+        bs_location=bs_location_tuple,
+        seed=args.seed,
+        save_plot=args.save_plot
     )
