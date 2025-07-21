@@ -69,10 +69,3 @@ python hybrid_leap_simulation.py --num_nodes 30 --field_size 120 120 --ch_probab
 ```
 python hybrid_leap_simulation.py --num_nodes 40 --field_size 150 100 --ch_probability 0.18 --bs_location 75 50 --seed 5 --save_plot benchmark5.png
 ```
-
-## Output
-
-- **Console Output**: Includes total nodes, cluster heads, average energy, and PEGASIS chains for each cluster.
-- **Plot**: A visual representation of nodes, cluster heads, base station, and PEGASIS links saved as a PNG file.
-
-For questions or contributions, feel free to open an issue or pull request!
