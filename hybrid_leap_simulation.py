@@ -3,14 +3,9 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
-<<<<<<< HEAD
 import copy
 import pandas as pd
 from typing import List, Dict, Tuple, Optional
-=======
-import numpy as np
-import copy
->>>>>>> 36fbc111987c9d50959fdc33aec2284b30f048b6
 
 def set_random_seed(seed: Optional[int] = None):
     """Set the random seed for reproducibility."""
@@ -25,11 +20,7 @@ def create_nodes(num_nodes: int, field_size: Tuple[int, int], min_energy: float,
         node = {
             'id': i,
             'pos': (random.uniform(0, field_size[0]), random.uniform(0, field_size[1])),
-<<<<<<< HEAD
             'energy': round(min_energy + (max_energy - min_energy) * random.random(), 2),
-=======
-            'energy': round(1.0 + 0.8 * random.random(), 2),  # Between 1.0 and 1.8 J as per paper
->>>>>>> 36fbc111987c9d50959fdc33aec2284b30f048b6
             'is_CH': False,
             'assigned_to': None,
             'alive': True
@@ -41,7 +32,6 @@ def get_distance(a: Tuple[float, float], b: Tuple[float, float]) -> float:
     """Calculate Euclidean distance between two points."""
     return math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
 
-<<<<<<< HEAD
 def select_cluster_heads(nodes: List[Dict], ch_probability: float, bs_location: Tuple[int, int], field_size: Tuple[int, int], protocol: str, max_energy: float) -> List[Dict]:
     """Select cluster heads based on protocol (Hybrid-LEAP or LEACH)."""
     cluster_heads = []
@@ -67,19 +57,6 @@ def select_cluster_heads(nodes: List[Dict], ch_probability: float, bs_location: 
                     node['is_CH'] = True
                     cluster_heads.append(node)
             attempts += 1
-=======
-def select_cluster_heads(nodes: List[Dict], ch_probability: float, bs_location: Tuple[int, int], field_size: Tuple[int, int]) -> List[Dict]:
-    """Select cluster heads based on probability, residual energy, and proximity to BS."""
-    cluster_heads = []
-    for node in nodes:
-        if node['alive']:
-            # Composite metric: higher energy and closer to BS increases probability
-            dist_to_bs = get_distance(node['pos'], bs_location)
-            prob_adjust = (node['energy'] / 1.8) * (1 / (1 + dist_to_bs / max(field_size)))
-            if random.random() < ch_probability * prob_adjust:
-                node['is_CH'] = True
-                cluster_heads.append(node)
->>>>>>> 36fbc111987c9d50959fdc33aec2284b30f048b6
     return cluster_heads
 
 def assign_nodes_to_ch(nodes: List[Dict], cluster_heads: List[Dict]):
@@ -121,7 +98,6 @@ def build_pegasis_chains(nodes: List[Dict], cluster_heads: List[Dict]) -> Dict[i
         pegasis_chains[ch['id']] = [n['id'] for n in chain]
     return pegasis_chains
 
-<<<<<<< HEAD
 def create_single_pegasis_chain(nodes: List[Dict]) -> List[int]:
     """Form a single PEGASIS chain for all alive nodes."""
     alive_nodes = [n for n in nodes if n['alive']]
@@ -286,78 +262,17 @@ def plot_network(nodes: List[Dict], cluster_heads: List[Dict], pegasis_chains: D
     plt.title(f"{protocol.upper()} Network (Round {round_num})")
     plt.xlabel("X Position")
     plt.ylabel("Y Position")
-=======
-# TDMA Simulation: Simple model to assign time slots and simulate transmission
-def simulate_tdma_transmission(chain: List[int], nodes: List[Dict], bs_location: Tuple[int, int]):
-    """Simulate TDMA scheduling and data transmission along the chain, updating energy."""
-    if not chain:
-        return
-    # Assign time slots: one slot per node in chain
-    num_slots = len(chain)
-    # Simulate transmission: each node sends to next, last to BS
-    for i in range(len(chain) - 1):
-        sender_id = chain[i]
-        receiver_id = chain[i+1]
-        sender = next(n for n in nodes if n['id'] == sender_id)
-        receiver = next(n for n in nodes if n['id'] == receiver_id)
-        dist = get_distance(sender['pos'], receiver['pos'])
-        energy_cost = 0.05 * dist  # As per paper: proportional to d (though typically d^2)
-        sender['energy'] -= energy_cost
-        if sender['energy'] <= 0:
-            sender['energy'] = 0
-            sender['alive'] = False
-    
-    # Last node in chain (CH) sends to BS
-    last_id = chain[-1]
-    last_node = next(n for n in nodes if n['id'] == last_id)
-    dist_to_bs = get_distance(last_node['pos'], bs_location)
-    energy_cost_to_bs = 0.05 * dist_to_bs
-    last_node['energy'] -= energy_cost_to_bs
-    if last_node['energy'] <= 0:
-        last_node['energy'] = 0
-        last_node['alive'] = False
-
-def print_simulation_results(nodes: List[Dict], cluster_heads: List[Dict], pegasis_chains: Dict[int, List[int]], round_num: int):
-    alive_nodes = [n for n in nodes if n['alive']]
-    print(f"Round {round_num}:")
-    print("Total Alive Nodes:", len(alive_nodes))
-    print("Cluster Heads:", [ch['id'] for ch in cluster_heads])
-    print("Average Energy:", round(sum(n['energy'] for n in alive_nodes) / len(alive_nodes) if alive_nodes else 0, 2))
-    print("\nPEGASIS Chains:")
-    for ch_id, chain in pegasis_chains.items():
-        print(f"CH {ch_id}: {chain}")
-        print(f"Chain Length: {len(chain)}")
-        chain_nodes = [next(n for n in nodes if n['id'] == nid) for nid in chain]
-        avg_chain_energy = round(sum(n['energy'] for n in chain_nodes) / len(chain_nodes), 2)
-        print(f"Average Energy in Chain: {avg_chain_energy}")
-
-def plot_network(nodes: List[Dict], cluster_heads: List[Dict], pegasis_chains: Dict[int, List[int]], field_size: Tuple[int, int], bs_location: Tuple[int, int], save_plot: str, round_num: int):
-    plt.figure(figsize=(10, 10))
-    plt.title(f"Hybrid-LEAP Network (Round {round_num})")
-    plt.xlabel("X Position")
-    plt.ylabel("Y Position")
-    # Plot alive normal nodes
->>>>>>> 36fbc111987c9d50959fdc33aec2284b30f048b6
     for node in nodes:
         if node['alive'] and not node['is_CH']:
             plt.plot(node['pos'][0], node['pos'][1], 'ko', markersize=7)
             plt.text(node['pos'][0] + 1, node['pos'][1] + 1, str(node['id']), fontsize=8)
-<<<<<<< HEAD
     for node in nodes:
         if not node['alive']:
             plt.plot(node['pos'][0], node['pos'][1], 'kx', markersize=7)
-=======
-    # Plot dead nodes
-    for node in nodes:
-        if not node['alive']:
-            plt.plot(node['pos'][0], node['pos'][1], 'kx', markersize=7)
-    # Plot cluster heads
->>>>>>> 36fbc111987c9d50959fdc33aec2284b30f048b6
     for ch in cluster_heads:
         if ch['alive']:
             plt.plot(ch['pos'][0], ch['pos'][1], 'r*', markersize=15)
             plt.text(ch['pos'][0] + 1, ch['pos'][1] + 1, str(ch['id']), fontsize=9, color='red')
-<<<<<<< HEAD
     plt.plot(bs_location[0], bs_location[1], 'bs', markersize=14)
     if protocol == "hybrid-leap":
         colors = ['g', 'b', 'm', 'c', 'y']
@@ -375,20 +290,6 @@ def plot_network(nodes: List[Dict], cluster_heads: List[Dict], pegasis_chains: D
             x_vals = [chain_nodes[i]['pos'][0], chain_nodes[i+1]['pos'][0]]
             y_vals = [chain_nodes[i]['pos'][1], chain_nodes[i+1]['pos'][1]]
             plt.plot(x_vals, y_vals, 'g-', linewidth=2)
-=======
-    # Plot base station
-    plt.plot(bs_location[0], bs_location[1], 'bs', markersize=14)
-    # Plot PEGASIS chains
-    colors = ['g', 'b', 'm', 'c', 'y']
-    for idx, (ch_id, chain) in enumerate(pegasis_chains.items()):
-        chain_nodes = [next(n for n in nodes if n['id'] == nid) for nid in chain if next((n for n in nodes if n['id'] == nid), None)['alive']]
-        color = colors[idx % len(colors)]
-        for i in range(len(chain_nodes) - 1):
-            x_vals = [chain_nodes[i]['pos'][0], chain_nodes[i+1]['pos'][0]]
-            y_vals = [chain_nodes[i]['pos'][1], chain_nodes[i+1]['pos'][1]]
-            plt.plot(x_vals, y_vals, color + '-', linewidth=2)
-    # Legend
->>>>>>> 36fbc111987c9d50959fdc33aec2284b30f048b6
     from matplotlib.lines import Line2D
     legend_elements = [
         Line2D([0], [0], marker='o', color='w', markerfacecolor='k', markersize=8, label='Alive Node'),
@@ -401,19 +302,11 @@ def plot_network(nodes: List[Dict], cluster_heads: List[Dict], pegasis_chains: D
     plt.xlim(0, field_size[0] + 10)
     plt.ylim(0, field_size[1] + 10)
     plt.grid(True)
-<<<<<<< HEAD
     plt.savefig(f"{save_plot}_{protocol}_round_{round_num}.png")
     plt.close()
 
 def reset_ch_status(nodes: List[Dict]):
     """Reset CH status for new round."""
-=======
-    plt.savefig(f"{save_plot}_round_{round_num}.png")
-    plt.close()
-
-# Function to reset CH status for new round
-def reset_ch_status(nodes: List[Dict]):
->>>>>>> 36fbc111987c9d50959fdc33aec2284b30f048b6
     for node in nodes:
         node['is_CH'] = False
         node['assigned_to'] = None
@@ -425,7 +318,6 @@ def run_simulation(
     bs_location: Tuple[int, int] = (100, 100),
     seed: Optional[int] = None,
     save_plot: str = 'plot',
-<<<<<<< HEAD
     num_rounds: int = 20,
     packet_loss_prob: float = 0.05,
     min_energy: float = 10.0,
@@ -489,67 +381,6 @@ def run_simulation(
     df = pd.DataFrame(data)
     df.to_csv(f"{save_plot}_results.csv", index=False)
     print(f"Simulation results exported to {save_plot}_results.csv")
-=======
-    num_rounds: int = 20
-):
-    """Run the Hybrid-LEAP simulation over multiple rounds."""
-    set_random_seed(seed)
-    nodes = create_nodes(num_nodes, field_size)
-    metrics = {'residual_energy': [], 'alive_nodes': [], 'avg_chain_energy': [], 'chain_lengths': []}
-    
-    for round_num in range(1, num_rounds + 1):
-        reset_ch_status(nodes)
-        cluster_heads = select_cluster_heads(nodes, ch_probability, bs_location, field_size)
-        assign_nodes_to_ch(nodes, cluster_heads)
-        pegasis_chains = build_pegasis_chains(nodes, cluster_heads)
-        
-        # Simulate TDMA and transmission for each chain
-        for ch_id, chain in pegasis_chains.items():
-            simulate_tdma_transmission(chain, nodes, bs_location)
-        
-        # Collect metrics
-        alive_nodes = sum(1 for n in nodes if n['alive'])
-        total_energy = sum(n['energy'] for n in nodes if n['alive'])
-        chain_energies = []
-        chain_lens = []
-        for chain in pegasis_chains.values():
-            chain_nodes = [next(n for n in nodes if n['id'] == nid) for nid in chain if next((n for n in nodes if n['id'] == nid), None)['alive']]
-            if chain_nodes:
-                chain_energies.append(sum(n['energy'] for n in chain_nodes) / len(chain_nodes))
-                chain_lens.append(len(chain_nodes))
-        
-        avg_chain_energy = np.mean(chain_energies) if chain_energies else 0
-        avg_chain_length = np.mean(chain_lens) if chain_lens else 0
-        
-        metrics['residual_energy'].append(total_energy)
-        metrics['alive_nodes'].append(alive_nodes)
-        metrics['avg_chain_energy'].append(avg_chain_energy)
-        metrics['chain_lengths'].append(avg_chain_length)
-        
-        print_simulation_results(nodes, cluster_heads, pegasis_chains, round_num)
-        plot_network(nodes, cluster_heads, pegasis_chains, field_size, bs_location, save_plot, round_num)
-        
-        if alive_nodes == 0:
-            print("All nodes dead. Ending simulation.")
-            break
-    
-    # Plot overall metrics
-    plt.figure(figsize=(12, 8))
-    plt.subplot(2, 2, 1)
-    plt.plot(metrics['residual_energy'])
-    plt.title('Total Residual Energy per Round')
-    plt.subplot(2, 2, 2)
-    plt.plot(metrics['alive_nodes'])
-    plt.title('Alive Nodes per Round')
-    plt.subplot(2, 2, 3)
-    plt.plot(metrics['avg_chain_energy'])
-    plt.title('Average Chain Energy per Round')
-    plt.subplot(2, 2, 4)
-    plt.plot(metrics['chain_lengths'])
-    plt.title('Average Chain Length per Round')
-    plt.savefig(f"{save_plot}_overall_metrics.png")
-    plt.close()
->>>>>>> 36fbc111987c9d50959fdc33aec2284b30f048b6
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run WSN simulation with Hybrid-LEAP, LEACH, and PEGASIS.")
@@ -559,15 +390,11 @@ if __name__ == "__main__":
     parser.add_argument('--bs_location', type=int, nargs=2, default=[200, 200], help="Base station location (x y)")
     parser.add_argument('--seed', type=int, default=None, help="Random seed (optional)")
     parser.add_argument('--save_plot', type=str, default='plot', help="Filename prefix to save the plots")
-<<<<<<< HEAD
     parser.add_argument('--num_rounds', type=int, default=100, help="Number of simulation rounds")
     parser.add_argument('--packet_loss_prob', type=float, default=0.1, help="Packet loss probability per hop")
     parser.add_argument('--min_energy', type=float, default=0.1, help="Minimum initial energy for nodes (Joules)")
     parser.add_argument('--max_energy', type=float, default=1.0, help="Maximum initial energy for nodes (Joules)")
     parser.add_argument('--packet_size', type=int, default=4000, help="Packet size in bits")
-=======
-    parser.add_argument('--num_rounds', type=int, default=20, help="Number of simulation rounds")
->>>>>>> 36fbc111987c9d50959fdc33aec2284b30f048b6
     args = parser.parse_args()
 
     run_simulation(
@@ -577,13 +404,9 @@ if __name__ == "__main__":
         bs_location=tuple(args.bs_location),
         seed=args.seed,
         save_plot=args.save_plot,
-<<<<<<< HEAD
         num_rounds=args.num_rounds,
         packet_loss_prob=args.packet_loss_prob,
         min_energy=args.min_energy,
         max_energy=args.max_energy,
         packet_size=args.packet_size
-=======
-        num_rounds=args.num_rounds
->>>>>>> 36fbc111987c9d50959fdc33aec2284b30f048b6
     )
